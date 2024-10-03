@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption, Decryption, and Hashing</title>
+</head>
+<body>
+    <h1>Encryption, Decryption, and Hashing</h1>
+
+    <form id="cryptoForm">
+        <label for="text">Enter Text:</label><br>
+        <input type="text" id="text" name="text" required><br><br>
+
+        <button type="button" onclick="sendData('/encrypt')">Encrypt</button>
+        <button type="button" onclick="sendData('/decrypt')">Decrypt</button>
+        <button type="button" onclick="sendData('/hash')">Hash</button>
+    </form>
+
+    <h3>Result:</h3>
+    <div id="result"></div>
+
+    <script>
+        let encryptedText = '';
+        let iv = '';
+
+        function sendData(endpoint) {
+            const text = document.getElementById('text').value;
+            let payload;
+
+            if (endpoint === '/decrypt') {
+                // For decryption, send both encryptedText and iv
+                payload = { encryptedText, iv };
+            } else {
+                // For encryption and hashing, send the raw text
+                payload = { text };
+            }
+
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = JSON.stringify(data);
+
+                if (endpoint === '/encrypt') {
+                    // Store encrypted text and IV for decryption
+                    encryptedText = data.encryptedText;
+                    iv = data.iv;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
